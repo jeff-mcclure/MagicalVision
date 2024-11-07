@@ -1,0 +1,82 @@
+uniform_float uStrength {
+	step = 0.1;
+	min = 0;
+	max = 2;
+	default = 1.0;
+	display_name = "Brightness";
+	description = "Brightness of invisibility effect";
+}
+
+uniform_float uBlend {
+	step = 0.01;
+	min = 0;
+	max = 1;
+	default = 1.0;
+	display_name = "Blend";
+	description = "Controls Chameleon blend";
+	static = false;
+}
+
+fragment invisible_eff {
+
+    omw_In vec2 omw_TexCoord;
+		
+    void main()
+    {	
+		// get pixel color
+		
+		vec4 pixelColor = omw_GetLastShader(omw_TexCoord);
+		
+		// pixel step vectors
+		
+		vec2 xdisp = vec2(1.0, 0.0)*omw.rcpResolution;
+		vec2 ydisp = vec2(0.0, 1.0)*omw.rcpResolution;
+		
+		// grab surrounding px colors and apply Sobel operator	
+		
+		vec4 sw = omw_GetLastShader(omw_TexCoord - xdisp - ydisp);
+		vec4 w = omw_GetLastShader(omw_TexCoord - xdisp);
+		vec4 nw = omw_GetLastShader(omw_TexCoord - xdisp + ydisp);
+		vec4 s = omw_GetLastShader(omw_TexCoord - ydisp);
+		vec4 n = omw_GetLastShader(omw_TexCoord + ydisp);
+		vec4 se = omw_GetLastShader(omw_TexCoord + xdisp - ydisp);
+		vec4 e = omw_GetLastShader(omw_TexCoord + xdisp);
+		vec4 ne = omw_GetLastShader(omw_TexCoord + xdisp + ydisp);
+		vec4 nn = omw_GetLastShader(omw_TexCoord + ydisp*2);
+		vec4 nne = omw_GetLastShader(omw_TexCoord + ydisp*2 + xdisp);
+		vec4 nnee = omw_GetLastShader(omw_TexCoord + ydisp*2 + xdisp*2);
+		vec4 nnw = omw_GetLastShader(omw_TexCoord + ydisp*2 - xdisp);
+		vec4 nnww = omw_GetLastShader(omw_TexCoord + ydisp*2 - xdisp*2);
+		vec4 ss = omw_GetLastShader(omw_TexCoord - ydisp*2);
+		vec4 sse = omw_GetLastShader(omw_TexCoord - ydisp*2 + xdisp);
+		vec4 ssee = omw_GetLastShader(omw_TexCoord - ydisp*2 + xdisp*2);
+		vec4 ssw = omw_GetLastShader(omw_TexCoord - ydisp*2 - xdisp);
+		vec4 ssww = omw_GetLastShader(omw_TexCoord - ydisp*2 - xdisp*2);
+		vec4 ee = omw_GetLastShader(omw_TexCoord + xdisp*2);
+		vec4 een = omw_GetLastShader(omw_TexCoord + ydisp + xdisp*2);
+		vec4 ees = omw_GetLastShader(omw_TexCoord - ydisp + xdisp*2);
+		vec4 ww = omw_GetLastShader(omw_TexCoord - xdisp*2);
+		vec4 wwn = omw_GetLastShader(omw_TexCoord + ydisp - xdisp*2);
+		vec4 wws = omw_GetLastShader(omw_TexCoord - ydisp - xdisp*2);
+		float dX_r = (-10.0*ww.r - 20.0*w.r + 20.0*e.r + 10.0*ee.r - 8.0*wwn.r - 8.0*wws.r - 10.0*sw.r - 10.0*nw.r + 10.0*ne.r + 10.0*se.r + 8.0*een.r + 8.0*ees.r - 5.0*nnww.r - 5.0*ssww.r - 4.0*nnw.r - 4.0*ssw.r + 4.0*nne.r + 4.0*sse.r + 5.0*nnee.r + 5.0*ssee.r)/30;
+		float dY_r = (-10.0*ss.r - 20.0*s.r + 20.0*n.r + 10.0*nn.r - 8.0*sse.r - 8.0*ssw.r - 10.0*sw.r + 10.0*nw.r + 10.0*ne.r - 10.0*se.r + 8.0*nnw.r + 8.0*nne.r + 5.0*nnww.r - 5.0*ssww.r + 4.0*wwn.r - 4.0*wws.r + 4.0*een.r - 4.0*ees.r + 5.0*nnee.r - 5.0*ssee.r)/30;				
+		float dX_g = (-10.0*ww.g - 20.0*w.g + 20.0*e.g + 10.0*ee.g - 8.0*wwn.g - 8.0*wws.g - 10.0*sw.g - 10.0*nw.g + 10.0*ne.g + 10.0*se.g + 8.0*een.g + 8.0*ees.g - 5.0*nnww.g - 5.0*ssww.g - 4.0*nnw.g - 4.0*ssw.g + 4.0*nne.g + 4.0*sse.g + 5.0*nnee.g + 5.0*ssee.g)/30;
+		float dY_g = (-10.0*ss.g - 20.0*s.g + 20.0*n.g + 10.0*nn.g - 8.0*sse.g - 8.0*ssw.g - 10.0*sw.g + 10.0*nw.g + 10.0*ne.g - 10.0*se.g + 8.0*nnw.g + 8.0*nne.g + 5.0*nnww.g - 5.0*ssww.g + 4.0*wwn.g - 4.0*wws.g + 4.0*een.g - 4.0*ees.g + 5.0*nnee.g - 5.0*ssee.g)/30;				
+		float dX_b = (-10.0*ww.b - 20.0*w.b + 20.0*e.b + 10.0*ee.b - 8.0*wwn.b - 8.0*wws.b - 10.0*sw.b - 10.0*nw.b + 10.0*ne.b + 10.0*se.b + 8.0*een.b + 8.0*ees.b - 5.0*nnww.b - 5.0*ssww.b - 4.0*nnw.b - 4.0*ssw.b + 4.0*nne.b + 4.0*sse.b + 5.0*nnee.b + 5.0*ssee.b)/30;
+		float dY_b = (-10.0*ss.b - 20.0*s.b + 20.0*n.b + 10.0*nn.b - 8.0*sse.b - 8.0*ssw.b - 10.0*sw.b + 10.0*nw.b + 10.0*ne.b - 10.0*se.b + 8.0*nnw.b + 8.0*nne.b + 5.0*nnww.b - 5.0*ssww.b + 4.0*wwn.b - 4.0*wws.b + 4.0*een.b - 4.0*ees.b + 5.0*nnee.b - 5.0*ssee.b)/30;				
+		float dX = sqrt((dX_r*dX_r + dX_g*dX_g + dX_b*dX_b)/3);
+		float dY = sqrt((dY_r*dY_r + dY_g*dY_g + dY_b*dY_b)/3);
+			
+		float grad = clamp(0.3*sqrt((dX*dX) + (dY*dY))*uStrength, 0.0f, 1.0f);
+		
+		omw_FragColor = vec4(grad, grad, grad, 1.0)*uBlend + pixelColor*(1 - uBlend);
+    }
+}
+
+technique {
+    passes = invisible_eff;
+    description = "A Sobel filter for invisibility/chameleon effect.";
+    author = "real_fargoth";
+    version = "1.0";
+	dynamic = true;
+}

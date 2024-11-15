@@ -1,0 +1,78 @@
+uniform_bool uEnable {
+    default = true;
+    description = "Enable/Disable telekinesis shader";
+    display_name = "Enable Shader";
+	static = false;
+}
+
+uniform_float teleDist {
+	default = 10;
+	min = 0;
+	max = 10000;
+	step = 10;
+    description = "Controls the depth of the telekinesis bubble.";
+    display_name = "Telekinesis Depth";
+	static = false;
+}
+
+fragment telekinesis_eff {
+
+    omw_In vec2 omw_TexCoord;
+		
+    void main()
+    {	
+		// get pixel color
+		
+		vec4 pixelColor = omw_GetLastShader(omw_TexCoord);
+
+        // get depth
+		vec3 worldPos = omw_GetWorldPosFromUV(omw_TexCoord);
+		float worldDistance = distance(omw.eyePos.xyz, worldPos);
+
+        // mix final scene
+		if (worldDistance > teleDist*1.2) {
+			vec4 col = vec4(0.0);
+			vec2 dist = omw_TexCoord - vec2(0.5);
+			float pre = 0.025 * (1.0 / float(10.0 - 1.0));
+			for(int i = 0; i < 10; i++) {
+				for(int j = 0; j < 10; j++) {
+					vec2 scale = vec2(1.0, 0.0)*(float(i)* pre);
+					vec2 scale2 = vec2(0.0, 1.0)*(float(j)* pre);
+					col += omw_GetLastShader(omw_TexCoord + scale - scale2)/((float(i)+1)*(float(j)+1));
+					col += omw_GetLastShader(omw_TexCoord - scale + scale2)/((float(i)+1)*(float(j)+1));
+					col += omw_GetLastShader(omw_TexCoord + scale + scale2)/((float(i)+1)*(float(j)+1));
+					col += omw_GetLastShader(omw_TexCoord - scale - scale2)/((float(i)+1)*(float(j)+1));
+				}
+            }
+            col /= 34;
+			omw_FragColor = col;
+		}
+		else if (worldDistance > teleDist) {
+			vec4 col = vec4(0.0);
+			vec2 dist = omw_TexCoord - vec2(0.5);
+			float pre = (worldDistance - teleDist)*0.025 * (1.0 / float(10.0 - 1.0))/(0.2*teleDist);
+			for(int i = 0; i < 10; i++) {
+				for(int j = 0; j < 10; j++) {
+					vec2 scale = vec2(1.0, 0.0)*(float(i)* pre);
+					vec2 scale2 = vec2(0.0, 1.0)*(float(j)* pre);
+					col += omw_GetLastShader(omw_TexCoord + scale - scale2)/((float(i)+1)*(float(j)+1));
+					col += omw_GetLastShader(omw_TexCoord - scale + scale2)/((float(i)+1)*(float(j)+1));
+					col += omw_GetLastShader(omw_TexCoord + scale + scale2)/((float(i)+1)*(float(j)+1));
+					col += omw_GetLastShader(omw_TexCoord - scale - scale2)/((float(i)+1)*(float(j)+1));
+				}
+            }
+            col /= 34;
+			omw_FragColor = col;
+		}
+		else {
+			omw_FragColor = pixelColor;
+		}
+    }
+}
+
+technique {
+    passes = telekinesis_eff;
+    description = "Creates a vision bubble encompasing the telekinesis effect range.";
+    version = "1.0";
+	dynamic = true;
+}

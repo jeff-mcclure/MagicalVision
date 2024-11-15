@@ -76,7 +76,6 @@ fragment invisible_eff {
 technique {
     passes = invisible_eff;
     description = "A Sobel filter for invisibility/chameleon effect.";
-    author = "real_fargoth";
     version = "1.0";
 	dynamic = true;
 }

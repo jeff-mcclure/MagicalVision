@@ -75,7 +75,6 @@ fragment main {
 technique {
     passes = downsample, downsample, upsample, upsample, main;
     description = "Blur/Sharpen effect for blind/paralyze magic effect.";
-    author = "real_fargoth";
     version = "1.0";
 	dynamic = true;
 }

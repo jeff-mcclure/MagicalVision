@@ -1,0 +1,49 @@
+uniform_bool uCenter {
+    default = true;
+    description = "Color gradient stronger at edges of the screen";
+    display_name = "Enable Center Gradient";
+}
+
+uniform_vec3 effectRGB {
+	default = vec3(0.35, 0.30, 0.25);
+	min = vec3(0.0, 0.0, 0.0);
+	max = vec3(1.0, 1.0, 1.0);
+	step = 0.01;
+    description = "Controls the color of the magical effect";
+    display_name = "Effect Color";
+    static = false;
+}
+
+fragment elemental_eff {
+
+    omw_In vec2 omw_TexCoord;
+		
+    void main()
+    {	
+		// get pixel color
+		
+		vec4 pixelColor = omw_GetLastShader(omw_TexCoord);
+
+        // distance from screen center gradient
+		
+		vec2 dxdy = omw_TexCoord - vec2(0.5);
+        float mask = pow(length(dxdy), 2.5);
+
+        // mix final scene
+		
+		if (uCenter) {
+			vec3 colOutput = mix(pixelColor.rgb, effectRGB, mask);
+			omw_FragColor = vec4(colOutput, 1.0);
+		}
+		else {
+			omw_FragColor = pixelColor;
+		}
+    }
+}
+
+technique {
+    passes = elemental_eff;
+    description = "Changes the color of the scene.";
+    version = "1.0";
+	dynamic = true;
+}
